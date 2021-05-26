@@ -6,7 +6,7 @@ import java.util.Queue;
 import it.polito.tdp.PremierLeague.model.Player;
 import it.polito.tdp.PremierLeague.model.Team;
 
-public class Simulator implements SimulatorResult
+public class Simulator implements SimulatorBuilder, SimulatorRunner, SimulatorResult
 {
 	private Team teamHome;
 	private Team teamAway;
@@ -19,8 +19,14 @@ public class Simulator implements SimulatorResult
 	private int numGoalsTeamHome;
 	private int numGoalsTeamAway;
 	
+	private Simulator() { }
+	
+	public static SimulatorBuilder create()
+	{
+		return new Simulator();
+	}
 
-	public void initialize(int numHighlights, Team teamHome, Team teamAway, Player bestPlayer)
+	public SimulatorRunner initialize(int numHighlights, Team teamHome, Team teamAway, Player bestPlayer)
 	{
 		this.teamAway = teamAway;
 		this.teamHome = teamHome;
@@ -33,6 +39,8 @@ public class Simulator implements SimulatorResult
 		this.numPlayersTeamAway = 11;
 		this.numGoalsTeamHome = 0;
 		this.numGoalsTeamAway = 0;
+		
+		return this;
 	}
 	
 	private void createHighlights(int numHighlights)
@@ -52,7 +60,7 @@ public class Simulator implements SimulatorResult
 		}
 	}
 
-	public void run()
+	public SimulatorResult run()
 	{
 		HighlightType highlight = null;
 		
@@ -111,6 +119,7 @@ public class Simulator implements SimulatorResult
 					break;
 			}
 		}
+		return this;
 	}
 
 	@Override

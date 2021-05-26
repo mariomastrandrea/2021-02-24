@@ -12,6 +12,7 @@ import org.jgrapht.graph.SimpleDirectedWeightedGraph;
 
 import it.polito.tdp.PremierLeague.db.PremierLeagueDAO;
 import it.polito.tdp.PremierLeague.simulation.Simulator;
+import it.polito.tdp.PremierLeague.simulation.SimulatorBuilder;
 import it.polito.tdp.PremierLeague.simulation.SimulatorResult;
 
 public class Model 
@@ -22,7 +23,7 @@ public class Model
 	private Map<Integer, Team> teamsIdMap;
 	private Match match;
 	private BestPlayer bestPlayer;
-	private Simulator simulator;
+	private SimulatorBuilder simulator;
 	
 	
 	public Model()
@@ -32,7 +33,7 @@ public class Model
 		this.teamsIdMap = new HashMap<>();
 		this.dao.listAllPlayers(this.playersIdMap);
 		this.dao.listAllTeams(this.teamsIdMap);
-		this.simulator = new Simulator();
+		this.simulator = Simulator.create();
 	}
 	
 	public void createGraph(Match match)
@@ -118,8 +119,9 @@ public class Model
 		Team teamHome = this.teamsIdMap.get(this.match.getTeamHomeID());
 		Team teamAway = this.teamsIdMap.get(this.match.getTeamAwayID());
 		
-		this.simulator.initialize(numHighlights, teamHome, teamAway, this.bestPlayer.getBestPlayer());
-		this.simulator.run();
-		return this.simulator;
+		SimulatorResult result = this.simulator.initialize(numHighlights, 
+				teamHome, teamAway, this.bestPlayer.getBestPlayer()).run();
+		
+		return result;
 	}
 }
