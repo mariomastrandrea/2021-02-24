@@ -4,9 +4,10 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.ResourceBundle;
 
-import it.polito.tdp.PremierLeague.model.GiocatoreMigliore;
+import it.polito.tdp.PremierLeague.model.BestPlayer;
 import it.polito.tdp.PremierLeague.model.Match;
 import it.polito.tdp.PremierLeague.model.Model;
+import it.polito.tdp.PremierLeague.simulation.SimulatorResult;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -67,7 +68,7 @@ public class FXMLController
     @FXML
     void doGiocatoreMigliore(ActionEvent event) 
     {
-    	GiocatoreMigliore bestPlayer = this.model.getBestPlayer();
+    	BestPlayer bestPlayer = this.model.getBestPlayer();
     	
     	if(bestPlayer == null)
     	{
@@ -82,7 +83,38 @@ public class FXMLController
     @FXML
     void doSimula(ActionEvent event) 
     {
-
+    	String input = this.txtN.getText();
+    	
+    	if(input == null || input.isBlank())
+    	{
+    		this.txtResult.setText("Errore: inserire numero di azioni minime N");
+    		return;
+    	}
+    	
+    	int N;
+    	
+    	try
+		{
+			N = Integer.parseInt(input);
+		}
+		catch(NumberFormatException nfe)
+		{
+			this.txtResult.setText("Errore di formato: inserire un numero intero N ("+input+" non è un numero intero)");
+    		return;
+		}
+    	
+    	SimulatorResult result = this.model.runNewSimulation(N);
+    	
+    	if(result == null)
+    	{
+    		this.txtResult.setText("Errore: calcolare prima il giocatore migliore");
+    		return;
+    	}
+    	
+    	this.txtResult.setText(String.format(
+    			"RISULTATO PARTITA:\n%s - %s  => %d - %d\nNUMERO ESPULSIONI: %d - %d",
+    			result.getTeamHome().toString(), result.getTeamAway(), result.getGoalsTeamHome(),
+    			result.getGoalsTeamAway(), result.getRedCardsTeamHome(), result.getRedCardsTeamAway()));
     }
 
     @FXML

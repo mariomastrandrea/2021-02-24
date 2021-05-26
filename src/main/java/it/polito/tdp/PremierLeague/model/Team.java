@@ -1,37 +1,43 @@
 package it.polito.tdp.PremierLeague.model;
 
-public class Team {
-	Integer teamID;
-	String name;
+public class Team 
+{
+	private Integer teamID;
+	private String name;
 
-	public Team(Integer teamID, String name) {
-		super();
+	
+	public Team(Integer teamID, String name) 
+	{
 		this.teamID = teamID;
 		this.name = name;
 	}
 	
-	public Integer getTeamID() {
+	public Integer getTeamID() 
+	{
 		return teamID;
 	}
-	public void setTeamID(Integer teamID) {
+	public void setTeamID(Integer teamID) 
+	{
 		this.teamID = teamID;
 	}
-	public String getName() {
+	public String getName() 
+	{
 		return name;
 	}
-	public void setName(String name) {
+	public void setName(String name) 
+	{
 		this.name = name;
 	}
 	
-	
-
 	@Override
-	public String toString() {
-		return name;
+	public String toString() 
+	{
+		return this.name;
 	}
 
 	@Override
-	public int hashCode() {
+	public int hashCode() 
+	{
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((teamID == null) ? 0 : teamID.hashCode());
@@ -39,7 +45,8 @@ public class Team {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(Object obj) 
+	{
 		if (this == obj)
 			return true;
 		if (obj == null)

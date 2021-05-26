@@ -1,12 +1,12 @@
 package it.polito.tdp.PremierLeague.model;
 
-public class GiocatoreMigliore
+public class BestPlayer
 {
 	private Player bestPlayer;
 	private double score;
 	
 	
-	public GiocatoreMigliore(Player bestPlayer, double score)
+	public BestPlayer(Player bestPlayer, double score)
 	{
 		this.bestPlayer = bestPlayer;
 		this.score = score;
