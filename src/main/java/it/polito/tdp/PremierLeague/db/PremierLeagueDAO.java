@@ -5,37 +5,45 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+
 import it.polito.tdp.PremierLeague.model.Action;
+import it.polito.tdp.PremierLeague.model.Adiacenza;
 import it.polito.tdp.PremierLeague.model.Match;
 import it.polito.tdp.PremierLeague.model.Player;
 import it.polito.tdp.PremierLeague.model.Team;
 
-public class PremierLeagueDAO {
-	
-	public List<Player> listAllPlayers(){
+public class PremierLeagueDAO 
+{	
+	public void listAllPlayers(Map<Integer,Player> playersIdMap)
+	{
 		String sql = "SELECT * FROM Players";
-		List<Player> result = new ArrayList<Player>();
 		Connection conn = DBConnect.getConnection();
 
-		try {
+		try 
+		{
 			PreparedStatement st = conn.prepareStatement(sql);
 			ResultSet res = st.executeQuery();
-			while (res.next()) {
-
-				Player player = new Player(res.getInt("PlayerID"), res.getString("Name"));
-				result.add(player);
+			while (res.next()) 
+			{
+				if(!playersIdMap.containsKey(res.getInt("PlayerID")))
+				{
+					Player player = new Player(res.getInt("PlayerID"), res.getString("Name"));
+					playersIdMap.put(player.getPlayerID(), player);
+				}
 			}
 			conn.close();
-			return result;
-			
-		} catch (SQLException e) {
+		} 
+		catch (SQLException e) 
+		{
 			e.printStackTrace();
-			return null;
 		}
 	}
 	
-	public List<Team> listAllTeams(){
+	public List<Team> listAllTeams()
+	{
 		String sql = "SELECT * FROM Teams";
 		List<Team> result = new ArrayList<Team>();
 		Connection conn = DBConnect.getConnection();
@@ -82,14 +90,18 @@ public class PremierLeagueDAO {
 		}
 	}
 	
-	public List<Match> listAllMatches(){
+	public List<Match> listAllMatches()
+	{
 		String sql = "SELECT m.MatchID, m.TeamHomeID, m.TeamAwayID, m.teamHomeFormation, m.teamAwayFormation, m.resultOfTeamHome, m.date, t1.Name, t2.Name   "
 				+ "FROM Matches m, Teams t1, Teams t2 "
-				+ "WHERE m.TeamHomeID = t1.TeamID AND m.TeamAwayID = t2.TeamID";
+				+ "WHERE m.TeamHomeID = t1.TeamID AND m.TeamAwayID = t2.TeamID "
+				+ "ORDER BY m.MatchID ASC";
+		
 		List<Match> result = new ArrayList<Match>();
-		Connection conn = DBConnect.getConnection();
 
-		try {
+		try 
+		{
+			Connection conn = DBConnect.getConnection();
 			PreparedStatement st = conn.prepareStatement(sql);
 			ResultSet res = st.executeQuery();
 			while (res.next()) {
@@ -108,6 +120,81 @@ public class PremierLeagueDAO {
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return null;
+		}
+	}
+
+	public Collection<Player> getVertices(Match match, Map<Integer, Player> playersIdMap)
+	{
+		final String sqlQuery = "SELECT PlayerID FROM Actions WHERE MatchID = ?";
+		
+		Collection<Player> players = new ArrayList<>();
+		
+		try 
+		{
+			Connection conn = DBConnect.getConnection();
+			PreparedStatement st = conn.prepareStatement(sqlQuery);
+			st.setInt(1, match.getMatchID());
+			ResultSet res = st.executeQuery();
+			
+			while (res.next()) 
+			{
+				if(playersIdMap.containsKey(res.getInt("PlayerId")))
+				{
+					players.add(playersIdMap.get(res.getInt("PlayerId")));
+				}
+			}
+			
+			conn.close();
+			return players;
+		} 
+		catch (SQLException e) 
+		{
+			e.printStackTrace();
+			throw new RuntimeException("Error in getVertices()", e);
+		}
+	}
+	
+	public Collection<Adiacenza> getAdiacenze(Match match, Map<Integer, Player> playersIdMap)
+	{
+		final String sqlQuery = String.format("%s %s %s %s %s %s",
+				"SELECT a1.PlayerID AS id1, a2.PlayerID AS id2,",
+						"((a1.totalSuccessfulPassesAll + a1.assists)/a1.timePlayed - ",
+						"(a2.totalSuccessfulPassesAll + a2.assists)/a2.timePlayed) AS peso",
+				"FROM Actions a1, Actions a2",
+				"WHERE a1.MatchID = a2.MatchID AND a1.MatchID = ?",
+						"AND a1.PlayerID > a2.PlayerID AND a1.TeamID <> a2.TeamID");
+		
+		Collection<Adiacenza> adiacenze = new ArrayList<>();
+		
+		try 
+		{
+			Connection conn = DBConnect.getConnection();
+			PreparedStatement st = conn.prepareStatement(sqlQuery);
+			st.setInt(1, match.getMatchID());
+			ResultSet res = st.executeQuery();
+			
+			while (res.next()) 
+			{
+				int id1 = res.getInt("id1");
+				int id2 = res.getInt("id2");
+				
+				if(playersIdMap.containsKey(id1) && playersIdMap.containsKey(id2))
+				{
+					Player player1 = playersIdMap.get(id1);
+					Player player2 = playersIdMap.get(id2);
+					double weight = res.getDouble("peso");
+					
+					adiacenze.add(new Adiacenza(player1, player2, weight));
+				}
+			}
+			
+			conn.close();
+			return adiacenze;
+		} 
+		catch (SQLException e) 
+		{
+			e.printStackTrace();
+			throw new RuntimeException("Error in getAdiacenze()", e);
 		}
 	}
 	

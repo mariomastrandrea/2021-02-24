@@ -1,21 +1,20 @@
 package it.polito.tdp.PremierLeague;
 
 import javafx.application.Application;
-import static javafx.application.Application.launch;
 
 import it.polito.tdp.PremierLeague.model.Model;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 
-public class EntryPoint extends Application {
-
+public class EntryPoint extends Application 
+{
     @Override
-    public void start(Stage stage) throws Exception {
-    	FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Scene.fxml"));
+    public void start(Stage stage) throws Exception 
+    {
+    	FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Scene_PremierLeague.fxml"));
 		BorderPane root = loader.load();
 		FXMLController controller = loader.getController();
 		Model model = new Model();
@@ -34,7 +33,8 @@ public class EntryPoint extends Application {
      *
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) 
+    {
         launch(args);
     }
 
